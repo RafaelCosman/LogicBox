@@ -1,24 +1,40 @@
 class Draggable
     constructor: () ->
-        @loc = new PVector(500, 500)
+        @dragging = false
+        @loc = new PVector(100, 100)
+        @offset = new PVector()
+    
+    run = () ->
+        if (@dragging)
+            @loc.set(PVector.add(getMouse(), @offset));
+            
+    unclicked = () ->
+        @dragging = false
+        
+    clicked = () ->
         
 class DraggableRectangle extends Draggable
     constructor: () ->
         super()
         @dim = new PVector(100, 100)
         
+    mouseIsOver: () ->
+        return getMouse().y > @loc.y && getMouse().y < @loc.y + @dimensions.y && getMouse().x > @loc.x && @getMouse().x < @loc.x + @dimensions.x;
+        
 class DraggableCircle extends Draggable
     constructor: () ->
         super()
         @radius = 10
         
-class logicBox extends DraggableRectangle 
+    mouseIsOver: () ->
+        getMouse().dist(@loc) < @radius
+        
+class logicBox extends DraggableCircle
     show: () ->
         ellipse(@loc.x, @loc.y, @radius * 2, @radius * 2)
         #ellipse(@loc, @dim)
         
     run: () ->
-        println("run")
         
     processString: (s) ->
         s
@@ -41,3 +57,6 @@ draw = () ->
 #-------
 #ellipse = (loc, dim) ->
 #    ellipse(loc.x, loc.y, dim.x, dim.y)
+
+getMouse = () ->
+    new PVector(pcs.mouseX, pcs.mouseY)
