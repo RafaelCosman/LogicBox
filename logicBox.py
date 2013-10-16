@@ -1,3 +1,7 @@
+"""
+This is the Logic Box game by Rafael Cosman
+"""
+
 class Draggable
     constructor: () ->
         @dragging = false
@@ -12,6 +16,9 @@ class Draggable
         @dragging = false
         
     clicked = () ->
+        if mouseIsOver()
+            dragging = true
+            @offset.set(PVector.sub(loc, getMouse))
         
 class DraggableRectangle extends Draggable
     constructor: () ->
@@ -52,7 +59,17 @@ draw = () ->
     for gameObject in gameObjects
         gameObject.run()
         gameObject.show()
-    
+
+#UI STUFF
+#-----------------
+mousePressed = () ->
+    for gameObject in gameObjects
+        gameObject.clicked()
+        
+mouseReleased = () ->
+    for gameObject in gameObjects
+        gameObject.unclicked()
+        
 #sugar
 #-------
 #ellipse = (loc, dim) ->
