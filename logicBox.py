@@ -1,6 +1,5 @@
 class Draggable
     constructor: () ->
-        super()
         @loc = new PVector(500, 500)
         
 class DraggableRectangle extends Draggable
@@ -13,10 +12,7 @@ class DraggableCircle extends Draggable
         super()
         @radius = 10
         
-class logicBox extends DraggableRectangle
-    constructor: () ->
-        super()
-        
+class logicBox extends DraggableRectangle 
     show: () ->
         ellipse(@loc.x, @loc.y, @radius * 2, @radius * 2)
         #ellipse(@loc, @dim)
