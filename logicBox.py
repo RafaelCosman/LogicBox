@@ -1,14 +1,28 @@
 class Draggable
     constructor: () ->
+        super()
         @loc = new PVector(500, 500)
+        
+class DraggableRectangle extends Draggable
+    constructor: () ->
+        super()
         @dim = new PVector(100, 100)
         
-class logicBox extends Draggable
+class DraggableCircle extends Draggable
+    constructor: () ->
+        super()
+        @radius = 10
+        
+class logicBox extends DraggableRectangle
+    constructor: () ->
+        super()
+        
     show: () ->
-        ellipse(@loc.x, @loc.y, @dim.x, @dim.y)
+        ellipse(@loc.x, @loc.y, @radius * 2, @radius * 2)
         #ellipse(@loc, @dim)
         
     run: () ->
+        println("run")
         
     processString: (s) ->
         s
