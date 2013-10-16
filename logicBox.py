@@ -1,8 +1,9 @@
-class logicBox
+class Draggable
     constructor: () ->
         @loc = new PVector(500, 500)
         @dim = new PVector(100, 100)
         
+class logicBox extends Draggable
     show: () ->
         ellipse(@loc.x, @loc.y, @dim.x, @dim.y)
         #ellipse(@loc, @dim)
