@@ -7,7 +7,7 @@ This is the Logic Box game by Rafael Cosman
 class Draggable
     constructor: () ->
         @dragging = false
-        @loc = computeLocationFromIndeces(new PVector(0, 1))
+        @loc = computeLocationFromIndeces(new PVector(-1, random(0, 9)))
         @offset = new PVector()
     
     run: () ->
@@ -54,7 +54,7 @@ class LogicBox extends DraggableCircle
         
 class CopyBox extends LogicBox
     show: () ->
-        fill(200, 0, 0)
+        fill(0, 0, 255)
         ellipseByLocationAndRadius(@loc, @radius)
         
     processString: (input) ->
@@ -62,7 +62,7 @@ class CopyBox extends LogicBox
 
 class DeleteBox extends LogicBox
     show: () ->
-        fill(200, 0, 0)
+        fill(255, 0, 0)
         ellipseByLocationAndRadius(@loc, @radius)
         
     processStirng: (input) ->
@@ -70,21 +70,29 @@ class DeleteBox extends LogicBox
         
 class StartBox extends LogicBox
     show: () ->
+        fill(0, 0, 0)
+        ellipseByLocationAndRadius(@loc, @radius)
         
 #Main code
 #--------------
 gameObjects = []
 gridSquareWidth = 90
-boardOffset = new PVector(gridSquareWidth * 1.5, gridSquareWidth * .5)
+border = 9
+boardOffset = new PVector(gridSquareWidth * 1.5 + border, gridSquareWidth * .5 + border)
 
 setup = () ->
     gameObjects.push(new CopyBox())
+    gameObjects.push(new DeleteBox())
+    gameObjects.push(new StartBox())
     
     rectMode(CENTER)
     ellipseMode(CENTER)
 
 draw = () ->
     background(200)
+
+    fill(255)
+    rect(gridSquareWidth * .5 + border * .5, height/2, gridSquareWidth - 2 * border, height - 2 * border)
     
     pushMatrix()
     drawGrid()
@@ -104,10 +112,10 @@ drawGrid = () ->
             rectByLocationAndDimensions(computeLocationFromIndeces(new PVector(x, y)), new PVector(gridSquareWidth, gridSquareWidth))
 
 computeLocationFromIndeces = (indeces) ->
-    unoffsetLocation = PVector.mult(indeces, gridSquareWidth + 2)
+    unoffsetLocation = PVector.mult(indeces, gridSquareWidth + border)
     PVector.add(boardOffset, unoffsetLocation)
 computeIndecesFromLocation = (loc) ->
-    indeces = PVector.div(PVector.sub(loc, boardOffset), gridSquareWidth + 2)
+    indeces = PVector.div(PVector.sub(loc, boardOffset), gridSquareWidth + border)
     indeces.x = Math.floor(indeces.x)
     indeces.y = Math.floor(indeces.y)
     indeces
@@ -128,12 +136,16 @@ ellipseByLocationAndDimensions = (location, dimensions) ->
     ellipse(location.x, location.y, dimensions.x, dimensions.y)
 ellipseByLocationAndRadius = (location , radius) ->
     ellipse(location.x, location.y, radius * 2, radius * 2)
+ellipseByDimensions = (dimensions) ->
+    ellipse(0, 0, dimensions, dimensions) 
+ellipseByRadius = (radius) ->
+    ellipse(0, 0, radius * 2, radius * 2)
     
 rectByLocationAndDimensions = (location, dimensions) ->
     rect(location.x, location.y, dimensions.x, dimensions.y)
     
-translateByVector = (vector) ->
-    translate(vector.x, vector.y)
+translateByLocation = (location) ->
+    translate(location.x, location.y)
 
 getMouse = () ->
     new PVector(pcs.mouseX, pcs.mouseY)
