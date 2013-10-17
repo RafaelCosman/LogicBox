@@ -11,7 +11,6 @@ class Draggable
         @offset = new PVector()
     
     run: () ->
-        println(@dragging)
         if (@dragging)
             @loc.set(PVector.add(getMouse(), @offset));
             
@@ -25,7 +24,7 @@ class DraggableRectangle extends Draggable
         
     clicked: () ->
         if @mouseIsOver()
-            dragging = true
+            @dragging = true
             @offset.set(PVector.sub(@loc, getMouse()))
             
     mouseIsOver: () ->
@@ -37,12 +36,14 @@ class DraggableCircle extends Draggable
         @radius = 10
         
     clicked: () ->
+        println("Mouse is over: " + @mouseIsOver())
         if @mouseIsOver()
-            dragging = true
+            @dragging = true
             @offset.set(PVector.sub(@loc, getMouse()))
             
     mouseIsOver: () ->
-        getMouse().dist(@loc) < @radius
+        println(getMouse().dist(@loc) < @radius)
+        return getMouse().dist(@loc) < @radius
         
 class logicBox extends DraggableCircle
     show: () ->
@@ -78,6 +79,9 @@ mousePressed = () ->
 mouseReleased = () ->
     for gameObject in gameObjects
         gameObject.unclicked()
+        
+mouseDragged = () ->
+    println("Dragged")
         
 #sugar
 #-------
