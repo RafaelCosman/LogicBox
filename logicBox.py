@@ -4,6 +4,11 @@ This is the Logic Box game by Rafael Cosman
 
 #Classes
 #------------------
+class RunButton
+    constructor: () ->
+        
+    run: ()
+
 class Draggable
     constructor: () ->
         @dragging = false
@@ -35,7 +40,7 @@ class DraggableRectangle extends Draggable
 class DraggableCircle extends Draggable
     constructor: () ->
         super()
-        @radius = gridSquareWidth / 2
+        @radius = gridSquareWidth / 2 - border
         
     clicked: () ->
         if @mouseIsOver()
@@ -58,15 +63,15 @@ class CopyBox extends LogicBox
         ellipseByLocationAndRadius(@loc, @radius)
         
     processString: (input) ->
-        input.append(input[0])
+        input += input[0]
 
 class DeleteBox extends LogicBox
     show: () ->
         fill(255, 0, 0)
         ellipseByLocationAndRadius(@loc, @radius)
         
-    processStirng: (input) ->
-        input.delete(0)
+    processString: (input) ->
+        input.substring(1)
         
 class StartBox extends LogicBox
     show: () ->
