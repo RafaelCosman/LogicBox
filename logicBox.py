@@ -3,11 +3,25 @@ This is the Logic Box game by Rafael Cosman
 """
 
 #Classes
-#------------------
+#----------------- 
 class RunButton
     constructor: () ->
+        @loc = new PVector(1300, 100)
+        @dimensions = new PVector(100, 100)
         
-    run: ()
+    run: () ->
+        
+    show: () ->
+        rectByLocationAndDimensions(@loc, @dimensions)
+        
+    clicked: () ->
+        if @mouseIsOver()
+            pass#First, let's find the startbox            
+            
+    unclicked: () ->
+            
+    mouseIsOver: () ->
+        getMouse().y > @loc.y && getMouse().y < @loc.y + @dimensions.y && getMouse().x > @loc.x && getMouse().x < @loc.x + @dimensions.x;
 
 class Draggable
     constructor: () ->
@@ -50,7 +64,17 @@ class DraggableCircle extends Draggable
     mouseIsOver: () ->
         getMouse().dist(@loc) < @radius
         
+class Arrow extends DraggableCircle
+    constructor: (@logicBox) ->
+    
+    show: () ->
+        ellipseByLoctionAndRadius(@loc, @radius)
+        
 class LogicBox extends DraggableCircle
+    constructor: () ->
+        super()
+        @arrow = new Arrow(this)
+    
     show: () ->
         ellipseByLocationAndRadius(@loc, @radius)
         
@@ -89,6 +113,8 @@ setup = () ->
     gameObjects.push(new CopyBox())
     gameObjects.push(new DeleteBox())
     gameObjects.push(new StartBox())
+
+    gameObjects.push(new RunButton())
     
     rectMode(CENTER)
     ellipseMode(CENTER)
