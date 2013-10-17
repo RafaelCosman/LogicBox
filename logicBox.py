@@ -7,7 +7,7 @@ This is the Logic Box game by Rafael Cosman
 class Draggable
     constructor: () ->
         @dragging = false
-        @loc = new PVector(100, 100)
+        @loc = computeLocationFromIndeces(new PVector(0, 1))
         @offset = new PVector()
     
     run: () ->
@@ -45,31 +45,46 @@ class DraggableCircle extends Draggable
     mouseIsOver: () ->
         getMouse().dist(@loc) < @radius
         
-class logicBox extends DraggableCircle
+class LogicBox extends DraggableCircle
     show: () ->
-        ellipse(@loc.x, @loc.y, @radius * 2, @radius * 2)
-        #ellipse(@loc, @dim)
+        ellipseByLocationAndRadius(@loc, @radius)
         
     processString: (s) ->
         s
         
+class CopyBox extends LogicBox
+    show: () ->
+        fill(200, 0, 0)
+        ellipseByLocationAndRadius(@loc, @radius)
+        
+    processString: (input) ->
+        input.append(input[0])
+
+class DeleteBox extends LogicBox
+    show: () ->
+        fill(200, 0, 0)
+        ellipseByLocationAndRadius(@loc, @radius)
+        
+    processStirng: (input) ->
+        input.delete(0)
+        
+class StartBox extends LogicBox
+    show: () ->
         
 #Main code
 #--------------
 gameObjects = []
-boardOffset = new PVector(100, 0)
 gridSquareWidth = 90
+boardOffset = new PVector(gridSquareWidth * 1.5, gridSquareWidth * .5)
 
 setup = () ->
-    box = new logicBox
-    gameObjects.push(box)
+    gameObjects.push(new CopyBox())
     
     rectMode(CENTER)
     ellipseMode(CENTER)
 
 draw = () ->
     background(200)
-    ellipse(pcs.mouseX, pcs.mouseY, 10, 10)
     
     pushMatrix()
     drawGrid()
@@ -109,8 +124,11 @@ mouseReleased = () ->
         
 #nice little sugar
 #-------
-ellipseByLocAndDims = (location, dimensions) ->
+ellipseByLocationAndDimensions = (location, dimensions) ->
     ellipse(location.x, location.y, dimensions.x, dimensions.y)
+ellipseByLocationAndRadius = (location , radius) ->
+    ellipse(location.x, location.y, radius * 2, radius * 2)
+    
 rectByLocationAndDimensions = (location, dimensions) ->
     rect(location.x, location.y, dimensions.x, dimensions.y)
     
