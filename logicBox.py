@@ -2,29 +2,32 @@
 This is the Logic Box game by Rafael Cosman
 """
 
+#Classes
+#------------------
 class Draggable
     constructor: () ->
         @dragging = false
         @loc = new PVector(100, 100)
         @offset = new PVector()
     
-    run = () ->
+    run: () ->
+        println(@dragging)
         if (@dragging)
             @loc.set(PVector.add(getMouse(), @offset));
             
-    unclicked = () ->
+    unclicked: () ->
         @dragging = false
-        
-    clicked = () ->
-        if mouseIsOver()
-            dragging = true
-            @offset.set(PVector.sub(loc, getMouse))
         
 class DraggableRectangle extends Draggable
     constructor: () ->
         super()
         @dim = new PVector(100, 100)
         
+    clicked: () ->
+        if @mouseIsOver()
+            dragging = true
+            @offset.set(PVector.sub(@loc, getMouse()))
+            
     mouseIsOver: () ->
         return getMouse().y > @loc.y && getMouse().y < @loc.y + @dimensions.y && getMouse().x > @loc.x && @getMouse().x < @loc.x + @dimensions.x;
         
@@ -33,6 +36,11 @@ class DraggableCircle extends Draggable
         super()
         @radius = 10
         
+    clicked: () ->
+        if @mouseIsOver()
+            dragging = true
+            @offset.set(PVector.sub(@loc, getMouse()))
+            
     mouseIsOver: () ->
         getMouse().dist(@loc) < @radius
         
@@ -41,11 +49,12 @@ class logicBox extends DraggableCircle
         ellipse(@loc.x, @loc.y, @radius * 2, @radius * 2)
         #ellipse(@loc, @dim)
         
-    run: () ->
-        
     processString: (s) ->
         s
-
+        
+        
+#Main code
+#--------------
 gameObjects = []
     
 setup = () ->
