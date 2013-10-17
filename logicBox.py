@@ -16,6 +16,8 @@ class Draggable
             
     unclicked: () ->
         @dragging = false
+        indeces = computeIndecesFromLocation(@loc)
+        @loc = computeLocationFromIndeces(indeces)
         
 class DraggableRectangle extends Draggable
     constructor: () ->
@@ -61,6 +63,9 @@ gridSquareWidth = 90
 setup = () ->
     box = new logicBox
     gameObjects.push(box)
+    
+    rectMode(CENTER)
+    ellipseMode(CENTER)
 
 draw = () ->
     background(200)
@@ -82,9 +87,15 @@ drawGrid = () ->
     for x in [0..10]
         for y in [0..10]
             rectByLocationAndDimensions(computeLocationFromIndeces(new PVector(x, y)), new PVector(gridSquareWidth, gridSquareWidth))
-            
-computeLocationFromIndeces = (loc) ->
-    PVector.add(boardOffset, PVector.mult(loc, gridSquareWidth + 2))
+
+computeLocationFromIndeces = (indeces) ->
+    unoffsetLocation = PVector.mult(indeces, gridSquareWidth + 2)
+    PVector.add(boardOffset, unoffsetLocation)
+computeIndecesFromLocation = (loc) ->
+    indeces = PVector.div(PVector.sub(loc, boardOffset), gridSquareWidth + 2)
+    indeces.x = Math.floor(indeces.x)
+    indeces.y = Math.floor(indeces.y)
+    indeces
         
 #UI STUFF
 #-----------------
