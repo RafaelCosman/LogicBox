@@ -28,22 +28,20 @@ class DraggableRectangle extends Draggable
             @offset.set(PVector.sub(@loc, getMouse()))
             
     mouseIsOver: () ->
-        return getMouse().y > @loc.y && getMouse().y < @loc.y + @dimensions.y && getMouse().x > @loc.x && @getMouse().x < @loc.x + @dimensions.x;
+        getMouse().y > @loc.y && getMouse().y < @loc.y + @dimensions.y && getMouse().x > @loc.x && @getMouse().x < @loc.x + @dimensions.x;
         
 class DraggableCircle extends Draggable
     constructor: () ->
         super()
-        @radius = 10
+        @radius = gridSquareWidth / 2
         
     clicked: () ->
-        println("Mouse is over: " + @mouseIsOver())
         if @mouseIsOver()
             @dragging = true
             @offset.set(PVector.sub(@loc, getMouse()))
             
     mouseIsOver: () ->
-        println(getMouse().dist(@loc) < @radius)
-        return getMouse().dist(@loc) < @radius
+        getMouse().dist(@loc) < @radius
         
 class logicBox extends DraggableCircle
     show: () ->
@@ -57,19 +55,37 @@ class logicBox extends DraggableCircle
 #Main code
 #--------------
 gameObjects = []
-    
+boardOffset = new PVector(100, 0)
+gridSquareWidth = 90
+
 setup = () ->
     box = new logicBox
     gameObjects.push(box)
 
 draw = () ->
-    background(100)
+    background(200)
     ellipse(pcs.mouseX, pcs.mouseY, 10, 10)
+    
+    pushMatrix()
+    drawGrid()
+    popMatrix()
     
     for gameObject in gameObjects
         gameObject.run()
+        
+        pushMatrix()
         gameObject.show()
+        popMatrix()
 
+drawGrid = () ->
+    fill(255)
+    for x in [0..10]
+        for y in [0..10]
+            rectByLocationAndDimensions(computeLocationFromIndeces(new PVector(x, y)), new PVector(gridSquareWidth, gridSquareWidth))
+            
+computeLocationFromIndeces = (loc) ->
+    PVector.add(boardOffset, PVector.mult(loc, gridSquareWidth + 2))
+        
 #UI STUFF
 #-----------------
 mousePressed = () ->
@@ -80,13 +96,15 @@ mouseReleased = () ->
     for gameObject in gameObjects
         gameObject.unclicked()
         
-mouseDragged = () ->
-    println("Dragged")
-        
-#sugar
+#nice little sugar
 #-------
-#ellipse = (loc, dim) ->
-#    ellipse(loc.x, loc.y, dim.x, dim.y)
+ellipseByLocAndDims = (location, dimensions) ->
+    ellipse(location.x, location.y, dimensions.x, dimensions.y)
+rectByLocationAndDimensions = (location, dimensions) ->
+    rect(location.x, location.y, dimensions.x, dimensions.y)
+    
+translateByVector = (vector) ->
+    translate(vector.x, vector.y)
 
 getMouse = () ->
     new PVector(pcs.mouseX, pcs.mouseY)
