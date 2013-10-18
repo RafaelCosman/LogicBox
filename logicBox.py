@@ -16,7 +16,7 @@ class RunButton
         
     clicked: () ->
         if @mouseIsOver()
-            pass#First, let's find the startbox            
+            println("running tests!")#First, let's find the startbox            
             
     unclicked: () ->
             
@@ -66,14 +66,17 @@ class DraggableCircle extends Draggable
         
 class Arrow extends DraggableCircle
     constructor: (@logicBox) ->
+        super()
     
     show: () ->
-        ellipseByLoctionAndRadius(@loc, @radius)
+        fill(150)
+        ellipseByLocationAndRadius(@loc, @radius)
         
 class LogicBox extends DraggableCircle
     constructor: () ->
         super()
         @arrow = new Arrow(this)
+        gameObjects.push(@arrow)
     
     show: () ->
         ellipseByLocationAndRadius(@loc, @radius)
