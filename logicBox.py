@@ -27,6 +27,7 @@ class Draggable
     constructor: () ->
         @dragging = false
         @loc = computeLocationFromIndeces(new PVector(-1, random(0, 9)))
+        @rotation = 0
         @offset = new PVector()
     
     run: () ->
@@ -64,22 +65,12 @@ class DraggableCircle extends Draggable
     mouseIsOver: () ->
         getMouse().dist(@loc) < @radius
         
-class Arrow extends DraggableCircle
-    constructor: (@logicBox) ->
-        super()
-    
-    show: () ->
-        fill(150)
-        ellipseByLocationAndRadius(@loc, @radius)
-        
 class LogicBox extends DraggableCircle
-    constructor: () ->
-        super()
-        @arrow = new Arrow(this)
-        gameObjects.push(@arrow)
-    
     show: () ->
-        ellipseByLocationAndRadius(@loc, @radius)
+        translateByLocation(@loc)
+        rotate(@rotation)
+        ellipseByRadius(@radius)
+        line(@loc.x, @loc.y, @loc.x, @loc.y - 10)
         
     processString: (s) ->
         s
@@ -87,7 +78,7 @@ class LogicBox extends DraggableCircle
 class CopyBox extends LogicBox
     show: () ->
         fill(0, 0, 255)
-        ellipseByLocationAndRadius(@loc, @radius)
+        super
         
     processString: (input) ->
         input += input[0]
@@ -95,7 +86,7 @@ class CopyBox extends LogicBox
 class DeleteBox extends LogicBox
     show: () ->
         fill(255, 0, 0)
-        ellipseByLocationAndRadius(@loc, @radius)
+        super
         
     processString: (input) ->
         input.substring(1)
@@ -103,7 +94,7 @@ class DeleteBox extends LogicBox
 class StartBox extends LogicBox
     show: () ->
         fill(0, 0, 0)
-        ellipseByLocationAndRadius(@loc, @radius)
+        super
         
 #Main code
 #--------------
@@ -177,6 +168,16 @@ ellipseByRadius = (radius) ->
     
 rectByLocationAndDimensions = (location, dimensions) ->
     rect(location.x, location.y, dimensions.x, dimensions.y)
+
+arrow = (x1, y1, x2, y2) ->
+    line(x1, y1, x2, y2)
+    pushMatrix()
+    translate(x2, y2)
+    float a = atan2(x1-x2, y2-y1)
+    rotate(a)
+    line(0, 0, -10, -10)
+    line(0, 0, 10, -10)
+    popMatrix()
     
 translateByLocation = (location) ->
     translate(location.x, location.y)
