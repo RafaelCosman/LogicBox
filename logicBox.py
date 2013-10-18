@@ -49,7 +49,7 @@ class Draggable
         @loc = computeLocationFromIndeces(@indeces)
         
         #Quantize rotation to one of the four cardinal directions
-        #@rotation = Math.round(@rotation / 90) * 90
+        @rotation = Math.round(@rotation / PI/2) * PI/2
         
     mouseAngle: () ->
         heading(PVector.sub(getMouse(), @loc))
@@ -122,6 +122,7 @@ gameObjects = []
 gridSquareWidth = 90
 border = 9
 boardOffset = new PVector(gridSquareWidth * 1.5 + border, gridSquareWidth * .5 + border)
+gridWidth = 9
 
 setup = () ->
     gameObjects.push(new CopyBox())
@@ -156,8 +157,8 @@ drawGrid = () ->
     fill(255)
     strokeWeight(2)
     stroke(0, 10, 20)
-    for x in [0..10]
-        for y in [0..10]
+    for x in [0..gridWidth]
+        for y in [0..gridWidth]
             rectByLocationAndDimensions(computeLocationFromIndeces(new PVector(x, y)), new PVector(gridSquareWidth, gridSquareWidth))
 
 computeLocationFromIndeces = (indeces) ->
