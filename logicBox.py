@@ -26,52 +26,72 @@ class RunButton
 class Draggable
     constructor: () ->
         @dragging = false
-        @loc = computeLocationFromIndeces(new PVector(-1, random(0, 9)))
+        @rotating = false
+        
+        @indeces = new PVector(-1, random(0, 9))
+        @loc = computeLocationFromIndeces(@indeces)
+        
         @rotation = 0
         @offset = new PVector()
     
     run: () ->
-        if (@dragging)
+        if @dragging
             @loc.set(PVector.add(getMouse(), @offset));
+        if @rotating
+            @rotation = @mouseAngle() + @rotationOffset
             
     unclicked: () ->
         @dragging = false
-        indeces = computeIndecesFromLocation(@loc)
-        @loc = computeLocationFromIndeces(indeces)
+        @rotating = false
         
-class DraggableRectangle extends Draggable
-    constructor: () ->
-        super()
-        @dim = new PVector(100, 100)
+        #Quantize location based on grid
+        @indeces = computeIndecesFromLocation(@loc)
+        @loc = computeLocationFromIndeces(@indeces)
         
-    clicked: () ->
-        if @mouseIsOver()
-            @dragging = true
-            @offset.set(PVector.sub(@loc, getMouse()))
-            
-    mouseIsOver: () ->
-        getMouse().y > @loc.y && getMouse().y < @loc.y + @dimensions.y && getMouse().x > @loc.x && @getMouse().x < @loc.x + @dimensions.x;
+        #Quantize rotation to one of the four cardinal directions
+        #@rotation = Math.round(@rotation / 90) * 90
+        
+    mouseAngle: () ->
+        heading(PVector.sub(getMouse(), @loc))
         
 class DraggableCircle extends Draggable
     constructor: () ->
         super()
-        @radius = gridSquareWidth / 2 - border
+        @radius = gridSquareWidth / 2 - 2 * border
+    
+    show: () ->
+        #first draw the circle
+        translateByLocation(@loc)
+        rotate(@rotation)
+        stroke(100)
+        ellipseByRadius(@radius)
+        
+        #Now let's draw the arrow
+        strokeWeight(10)
+        stroke(0, 200, 0)
+        line(0, 0, 0, -@radius)
+        translate(0, -@radius)
+        
+        dx = 7
+        dy = 5
+        triangle(0, -5, dx, dy, -dx, dy)
         
     clicked: () ->
         if @mouseIsOver()
             @dragging = true
             @offset.set(PVector.sub(@loc, getMouse()))
+        if @mouseIsOverRotation()
+            @rotating = true
+            @rotationOffset = @mouseAngle() - @rotation
             
     mouseIsOver: () ->
         getMouse().dist(@loc) < @radius
         
-class LogicBox extends DraggableCircle
-    show: () ->
-        translateByLocation(@loc)
-        rotate(@rotation)
-        ellipseByRadius(@radius)
-        line(@loc.x, @loc.y, @loc.x, @loc.y - 10)
+    mouseIsOverRotation: () ->
+        distance = getMouse().dist(@loc)
+        distance > @radius and distance < @radius + 10
         
+class LogicBox extends DraggableCircle        
     processString: (s) ->
         s
         
@@ -117,6 +137,8 @@ draw = () ->
     background(200)
 
     fill(255)
+    strokeWeight(2)
+    stroke(0)
     rect(gridSquareWidth * .5 + border * .5, height/2, gridSquareWidth - 2 * border, height - 2 * border)
     
     pushMatrix()
@@ -132,6 +154,8 @@ draw = () ->
 
 drawGrid = () ->
     fill(255)
+    strokeWeight(2)
+    stroke(0, 10, 20)
     for x in [0..10]
         for y in [0..10]
             rectByLocationAndDimensions(computeLocationFromIndeces(new PVector(x, y)), new PVector(gridSquareWidth, gridSquareWidth))
@@ -168,19 +192,13 @@ ellipseByRadius = (radius) ->
     
 rectByLocationAndDimensions = (location, dimensions) ->
     rect(location.x, location.y, dimensions.x, dimensions.y)
-
-arrow = (x1, y1, x2, y2) ->
-    line(x1, y1, x2, y2)
-    pushMatrix()
-    translate(x2, y2)
-    float a = atan2(x1-x2, y2-y1)
-    rotate(a)
-    line(0, 0, -10, -10)
-    line(0, 0, 10, -10)
-    popMatrix()
     
 translateByLocation = (location) ->
     translate(location.x, location.y)
 
 getMouse = () ->
     new PVector(pcs.mouseX, pcs.mouseY)
+    
+heading = (vector) ->
+    ding = Math.atan(vector.y / vector.x)
+    if vector.x < 0 then ding else ding + 180
