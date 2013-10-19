@@ -115,11 +115,29 @@ class StartBox extends LogicBox
     show: () ->
         fill(0, 0, 0)
         super
+    
+class UnitTest
+    constructor: (@input, @output) ->
+        @radius = 50
         
+    run: () ->
+        
+    show: () ->
+        translate(1200, 100)
+        fill(100)
+        ellipseByRadius(@radius)
+        text(@input)
+        
+    clicked: () ->
+        
+    unclicked: () ->
+    
 class Level
     constructor: () ->
         @gameObjects = []
         @gridWidth = 9
+    
+    
     
 #Main code
 #--------------
@@ -130,6 +148,8 @@ boardOffset = new PVector(gridSquareWidth * 1.5 + border, gridSquareWidth * .5 +
 currentLevel = new Level()
 
 setup = () ->
+    currentLevel.gameObjects.push(new UnitTest("test", "estt"))
+    
     currentLevel.gameObjects.push(new CopyBox())
     currentLevel.gameObjects.push(new DeleteBox())
     currentLevel.gameObjects.push(new StartBox())
