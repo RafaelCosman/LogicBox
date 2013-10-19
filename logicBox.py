@@ -89,7 +89,7 @@ class DraggableCircle extends Draggable
         
     mouseIsOverRotation: () ->
         distance = getMouse().dist(@loc)
-        distance > @radius and distance < @radius + 10
+        distance > @radius and distance < @radius + 20
         
 class LogicBox extends DraggableCircle        
     processString: (s) ->
@@ -116,20 +116,25 @@ class StartBox extends LogicBox
         fill(0, 0, 0)
         super
         
+class Level
+    constructor: () ->
+        @gameObjects = []
+        @gridWidth = 9
+    
 #Main code
 #--------------
-gameObjects = []
 gridSquareWidth = 90
 border = 9
 boardOffset = new PVector(gridSquareWidth * 1.5 + border, gridSquareWidth * .5 + border)
-gridWidth = 9
+
+currentLevel = new Level()
 
 setup = () ->
-    gameObjects.push(new CopyBox())
-    gameObjects.push(new DeleteBox())
-    gameObjects.push(new StartBox())
+    currentLevel.gameObjects.push(new CopyBox())
+    currentLevel.gameObjects.push(new DeleteBox())
+    currentLevel.gameObjects.push(new StartBox())
 
-    gameObjects.push(new RunButton())
+    currentLevel.gameObjects.push(new RunButton())
     
     rectMode(CENTER)
     ellipseMode(CENTER)
@@ -146,7 +151,7 @@ draw = () ->
     drawGrid()
     popMatrix()
     
-    for gameObject in gameObjects
+    for gameObject in currentLevel.gameObjects
         gameObject.run()
         
         pushMatrix()
@@ -157,8 +162,8 @@ drawGrid = () ->
     fill(255)
     strokeWeight(2)
     stroke(0, 10, 20)
-    for x in [0..gridWidth]
-        for y in [0..gridWidth]
+    for x in [0..currentLevel.gridWidth]
+        for y in [0..currentLevel.gridWidth]
             rectByLocationAndDimensions(computeLocationFromIndeces(new PVector(x, y)), new PVector(gridSquareWidth, gridSquareWidth))
 
 computeLocationFromIndeces = (indeces) ->
@@ -173,11 +178,11 @@ computeIndecesFromLocation = (loc) ->
 #UI STUFF
 #-----------------
 mousePressed = () ->
-    for gameObject in gameObjects
+    for gameObject in currentLevel.gameObjects
         gameObject.clicked()
         
 mouseReleased = () ->
-    for gameObject in gameObjects
+    for gameObject in currentLevel.gameObjects
         gameObject.unclicked()
         
 #nice little sugar
