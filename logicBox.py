@@ -123,11 +123,17 @@ class StartBox extends LogicBox
 class StringInProgress
     constructor: (@string, @loc) ->
         @indices = computeIndecesFromLocation(@loc)
-        @updateVel()
+        @vel = new PVector(0, 0)
+        @run()
         
     run: () ->
         @loc.add(@vel)
-        @updateVel()
+        
+        currentLogicBox = currentLevel.findLogicBoxByLocation(@loc)
+        
+        if currentLogicBox != null
+            @vel = makeVectorFromHeading(currentLogicBox.rotation)
+            @string = currentLogicBox.processString(@string)
         
     show: () ->
         translateByLocation(@loc)
@@ -137,12 +143,6 @@ class StringInProgress
     clicked: () ->
         
     unclicked: () ->
-        
-    updateVel: () ->
-        currentLogicBox = currentLevel.findLogicBoxByLocation(@loc)
-        
-        if currentLogicBox != null
-            @vel = makeVectorFromHeading(currentLogicBox.rotation)
     
 class UnitTest
     constructor: (@input, @output) ->
