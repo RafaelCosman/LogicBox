@@ -125,13 +125,19 @@ class StartBox extends LogicBox
         super
     
 class StringInProgress
-    constructor: (@string, @loc) ->
+    constructor: (@string, @loc, @unitTest) ->
         @indices = computeIndecesFromLocation(@loc)
         @vel = new PVector(0, 0)
         @run()
         
     run: () ->
         @loc.add(@vel)
+        
+        if not locationIsOnGrid(@loc)
+            if @string is @unitTest.output
+                println("YES")
+            else
+                println("NO")
         
         currentLogicBox = currentLevel.findLogicBoxByLocation(@loc)
         
@@ -170,7 +176,7 @@ class UnitTest
             @runTest()
             
     runTest: () ->
-        currentLevel.gameObjects.push(new StringInProgress(@input, currentLevel.startBox.loc))
+        currentLevel.gameObjects.push(new StringInProgress(@input, currentLevel.startBox.loc, this))
         
     unclicked: () ->
         
@@ -254,8 +260,28 @@ computeIndecesFromLocation = (loc) ->
     indeces.x = Math.round(indeces.x)
     indeces.y = Math.round(indeces.y)
     indeces
+    
+heading = (vector) ->
+    ding = Math.atan(vector.y / vector.x)
+    if vector.x < 0 then ding - HALF_PI else ding + HALF_PI
+makeVectorFromHeading = (heading) ->
+    heading -= HALF_PI #TODO: why do I seem to have to do this?
+    return new PVector(cos(heading), sin(heading))
+
+locationIsOnGrid = (location) ->
+    indecesOfFarCorner = new PVector(currentLevel.gridWidth, currentLevel.gridWidth)
+    locationOfFarCorner = computeLocationFromIndeces(indecesOfFarCorner)
+    
+    print(location)
+    print(boardOffset)
+    print(locationOfFarCorner)
+    
+    location.x >= boardOffset.x and
+    location.y >= boardOffset.y and
+    location.x <= locationOfFarCorner.x and
+    location.y <= locationOfFarCorner.y
         
-#UI STUFF
+#Mouse STUFF
 #-----------------
 mousePressed = () ->
     for gameObject in currentLevel.gameObjects
@@ -264,6 +290,10 @@ mousePressed = () ->
 mouseReleased = () ->
     for gameObject in currentLevel.gameObjects
         gameObject.unclicked()
+        
+getMouse = () ->
+    new PVector(pcs.mouseX, pcs.mouseY)
+    
         
 #Little one-line wrapper functions
 #-----------------------------
@@ -281,14 +311,3 @@ rectByLocationAndDimensions = (location, dimensions) ->
     
 translateByLocation = (location) ->
     translate(location.x, location.y)
-
-getMouse = () ->
-    new PVector(pcs.mouseX, pcs.mouseY)
-    
-heading = (vector) ->
-    ding = Math.atan(vector.y / vector.x)
-    if vector.x < 0 then ding - HALF_PI else ding + HALF_PI
-        
-makeVectorFromHeading = (heading) ->
-    heading -= HALF_PI #TODO: why do I seem to have to do this?
-    return new PVector(cos(heading), sin(heading))
