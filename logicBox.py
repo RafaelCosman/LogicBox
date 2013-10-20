@@ -20,7 +20,7 @@ class RunButton
         
     clicked: () ->
         if @mouseIsOver()
-            println("Running all tests!")#First, let's find the startbox            
+            println("Running all tests!")         
             
     unclicked: () ->
             
@@ -120,14 +120,39 @@ class StartBox extends LogicBox
         fill(0, 0, 0)
         super
     
+class StringInProgress
+    constructor: (@string, @loc) ->
+        @indices = computeIndecesFromLocation(@loc)
+        @updateVel()
+        
+    run: () ->
+        @loc.add(@vel)
+        @updateVel()
+        
+    show: () ->
+        translateByLocation(@loc)
+        fill(200)
+        text(@string, 0, 0)
+        
+    clicked: () ->
+        
+    unclicked: () ->
+        
+    updateVel: () ->
+        currentLogicBox = currentLevel.findLogicBoxByLocation(@loc)
+        
+        if currentLogicBox != null
+            @vel = makeVectorFromHeading(currentLogicBox.rotation)
+    
 class UnitTest
     constructor: (@input, @output) ->
+        @loc = new PVector(1200, 100)
         @radius = 50
         
     run: () ->
         
     show: () ->
-        translate(1200, 100)
+        translateByLocation(@loc)
         fill(100)
         ellipseByRadius(@radius)
         
@@ -137,15 +162,28 @@ class UnitTest
         text(@output, 0, 25)
         
     clicked: () ->
-        startBox = currentLevel.startBox
+        if @mouseIsOver()
+            currentLevel.gameObjects.push(new StringInProgress(@input, currentLevel.startBox.loc))
         
     unclicked: () ->
+        
+    mouseIsOver: () ->
+        getMouse().dist(@loc) < @radius
     
 class Level extends StartBox
     constructor: () ->
         @gameObjects = []
         @gridWidth = 9
         @startBox = new StartBox()
+        @gameObjects.push(@startBox)
+        
+    findLogicBoxByLocation: (location) ->
+        for gameObject in @gameObjects
+            if gameObject instanceof LogicBox
+                if gameObject.loc.dist(location) == 0
+                    return gameObject
+                
+        return null
     
 #Main code
 #--------------
@@ -166,7 +204,6 @@ setup = () ->
     
     currentLevel.gameObjects.push(new CopyBox())
     currentLevel.gameObjects.push(new DeleteBox())
-    currentLevel.gameObjects.push(new StartBox())
 
     currentLevel.gameObjects.push(new UnitTest("test", "estt"))
     currentLevel.gameObjects.push(new RunButton())
@@ -199,6 +236,8 @@ drawGrid = () ->
         for y in [0..currentLevel.gridWidth]
             rectByLocationAndDimensions(computeLocationFromIndeces(new PVector(x, y)), new PVector(gridSquareWidth, gridSquareWidth))
 
+#Helper functions
+#------------------
 computeLocationFromIndeces = (indeces) ->
     unoffsetLocation = PVector.mult(indeces, gridSquareWidth + border)
     PVector.add(boardOffset, unoffsetLocation)
@@ -218,8 +257,8 @@ mouseReleased = () ->
     for gameObject in currentLevel.gameObjects
         gameObject.unclicked()
         
-#nice little sugar
-#-------
+#Little one-line wrapper functions
+#-----------------------------
 ellipseByLocationAndDimensions = (location, dimensions) ->
     ellipse(location.x, location.y, dimensions.x, dimensions.y)
 ellipseByLocationAndRadius = (location , radius) ->
@@ -241,3 +280,6 @@ getMouse = () ->
 heading = (vector) ->
     ding = Math.atan(vector.y / vector.x)
     if vector.x < 0 then ding else ding + 180
+        
+makeVectorFromHeading = (heading) ->
+    return new PVector(cos(heading), sin(heading))
