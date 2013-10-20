@@ -6,23 +6,27 @@ This is the Logic Box game by Rafael Cosman
 #----------------- 
 class RunButton
     constructor: () ->
-        @loc = new PVector(1300, 100)
-        @dimensions = new PVector(100, 100)
+        @loc = new PVector(1400, 100)
+        @radius = 100
         
     run: () ->
         
     show: () ->
-        rectByLocationAndDimensions(@loc, @dimensions)
+        translateByLocation(@loc)
+        ellipseByRadius(@radius)
+        
+        fill(100)
+        text("Run all tests", 0, 0)
         
     clicked: () ->
         if @mouseIsOver()
-            println("running tests!")#First, let's find the startbox            
+            println("Running all tests!")#First, let's find the startbox            
             
     unclicked: () ->
             
     mouseIsOver: () ->
-        getMouse().y > @loc.y && getMouse().y < @loc.y + @dimensions.y && getMouse().x > @loc.x && getMouse().x < @loc.x + @dimensions.x;
-
+        getMouse().dist(@loc) < @radius
+        
 class Draggable
     constructor: () ->
         @dragging = false
@@ -36,7 +40,7 @@ class Draggable
     
     run: () ->
         if @dragging
-            @loc.set(PVector.add(getMouse(), @offset));3
+            @loc.set(PVector.add(getMouse(), @offset))
         if @rotating
             @rotation = @mouseAngle() + @rotationOffset
             
@@ -137,12 +141,11 @@ class UnitTest
         
     unclicked: () ->
     
-class Level
+class Level extends StartBox
     constructor: () ->
         @gameObjects = []
         @gridWidth = 9
-    
-    
+        @startBox = new StartBox()
     
 #Main code
 #--------------
@@ -150,22 +153,23 @@ gridSquareWidth = 90
 border = 9
 boardOffset = new PVector(gridSquareWidth * 1.5 + border, gridSquareWidth * .5 + border)
 
-currentLevel = new Level()
+currentLevel = null
 
 setup = () ->
     textFont(createFont("FFScala", 32))
     
-    currentLevel.gameObjects.push(new UnitTest("test", "estt"))
+    rectMode(CENTER)
+    ellipseMode(CENTER)
+    textAlign(CENTER)
+
+    currentLevel = new Level()
     
     currentLevel.gameObjects.push(new CopyBox())
     currentLevel.gameObjects.push(new DeleteBox())
     currentLevel.gameObjects.push(new StartBox())
 
+    currentLevel.gameObjects.push(new UnitTest("test", "estt"))
     currentLevel.gameObjects.push(new RunButton())
-    
-    rectMode(CENTER)
-    ellipseMode(CENTER)
-    textAlign(CENTER)
         
 draw = () ->
     background(200)
