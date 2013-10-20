@@ -135,9 +135,9 @@ class StringInProgress
         
         if not locationIsOnGrid(@loc)
             if @string is @unitTest.output
-                println("YES")
+                @unitTest.passed()
             else
-                println("NO")
+                @unitTest.failed()
         
         currentLogicBox = currentLevel.findLogicBoxByLocation(@loc)
         
@@ -157,12 +157,13 @@ class StringInProgress
 class UnitTest
     constructor: (@input, @output, @loc) ->
         @radius = 50
+        @fillColor = color(100)
         
     run: () ->
         
     show: () ->
         translateByLocation(@loc)
-        fill(100)
+        fill(@fillColor)
         stroke(0)
         ellipseByRadius(@radius)
         
@@ -182,6 +183,11 @@ class UnitTest
         
     mouseIsOver: () ->
         getMouse().dist(@loc) < @radius
+        
+    passed: () ->
+        @fillColor = color(255)
+    failed: () ->
+        @fillColor = color(255, 0 , 0)
     
 class Level extends StartBox
     constructor: () ->
