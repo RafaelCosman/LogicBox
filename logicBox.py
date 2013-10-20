@@ -36,7 +36,7 @@ class Draggable
     
     run: () ->
         if @dragging
-            @loc.set(PVector.add(getMouse(), @offset));
+            @loc.set(PVector.add(getMouse(), @offset));3
         if @rotating
             @rotation = @mouseAngle() + @rotationOffset
             
@@ -126,9 +126,14 @@ class UnitTest
         translate(1200, 100)
         fill(100)
         ellipseByRadius(@radius)
-        text(@input)
+        
+        stroke(200)
+        fill(200)
+        text(@input, 0, 0)
+        text(@output, 0, 25)
         
     clicked: () ->
+        startBox = currentLevel.startBox
         
     unclicked: () ->
     
@@ -148,6 +153,8 @@ boardOffset = new PVector(gridSquareWidth * 1.5 + border, gridSquareWidth * .5 +
 currentLevel = new Level()
 
 setup = () ->
+    textFont(createFont("FFScala", 32))
+    
     currentLevel.gameObjects.push(new UnitTest("test", "estt"))
     
     currentLevel.gameObjects.push(new CopyBox())
@@ -158,7 +165,8 @@ setup = () ->
     
     rectMode(CENTER)
     ellipseMode(CENTER)
-
+    textAlign(CENTER)
+        
 draw = () ->
     background(200)
 
@@ -178,6 +186,7 @@ draw = () ->
         gameObject.show()
         popMatrix()
 
+#Draws the grid for the user to code on. This grid should be drawn behind all other game objects.
 drawGrid = () ->
     fill(255)
     strokeWeight(2)
