@@ -6,13 +6,15 @@ This is the Logic Box game by Rafael Cosman
 #----------------- 
 class RunButton
     constructor: () ->
-        @loc = new PVector(1400, 100)
+        @loc = new PVector(1500, 100)
         @radius = 100
         
     run: () ->
         
     show: () ->
         translateByLocation(@loc)
+        
+        stroke(0)
         ellipseByRadius(@radius)
         
         fill(100)
@@ -63,9 +65,7 @@ class Draggable
         @loc = computeLocationFromIndeces(@indeces)
         
         #Quantize rotation to one of the four cardinal directions
-        println(@rotation)
         @rotation = Math.round(@rotation / HALF_PI) * HALF_PI
-        println(@rotation)
         
     mouseAngle: () ->
         heading(PVector.sub(getMouse(), @loc))
@@ -157,6 +157,7 @@ class UnitTest
     show: () ->
         translateByLocation(@loc)
         fill(100)
+        stroke(0)
         ellipseByRadius(@radius)
         
         stroke(200)
@@ -250,8 +251,8 @@ computeLocationFromIndeces = (indeces) ->
     PVector.add(boardOffset, unoffsetLocation)
 computeIndecesFromLocation = (loc) ->
     indeces = PVector.div(PVector.sub(loc, boardOffset), gridSquareWidth + border)
-    indeces.x = Math.floor(indeces.x)
-    indeces.y = Math.floor(indeces.y)
+    indeces.x = Math.round(indeces.x)
+    indeces.y = Math.round(indeces.y)
     indeces
         
 #UI STUFF
@@ -289,4 +290,5 @@ heading = (vector) ->
     if vector.x < 0 then ding - HALF_PI else ding + HALF_PI
         
 makeVectorFromHeading = (heading) ->
+    heading -= HALF_PI #TODO: why do I seem to have to do this?
     return new PVector(cos(heading), sin(heading))
