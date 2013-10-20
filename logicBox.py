@@ -3,33 +3,35 @@ This is the Logic Box game by Rafael Cosman
 """
 
 #Classes
-#----------------- 
+#-----------------
+class Circle
+    constructor: (@loc, @radius) ->
+        
+    mouseIsOver: () ->
+        getMouse().dist(@loc) < @radius
+        
 class RunButton
     constructor: () ->
-        @loc = new PVector(1500, 100)
-        @radius = 100
+        @circle = new Circle(new PVector(1500, 100), 100)
         
     run: () ->
         
     show: () ->
-        translateByLocation(@loc)
+        translateByLocation(@circle.loc)
         
         stroke(0)
-        ellipseByRadius(@radius)
+        ellipseByRadius(@circle.radius)
         
         fill(100)
         text("Run all tests", 0, 0)
         
     clicked: () ->
-        if @mouseIsOver()
+        if @circle.mouseIsOver()
             for gameObject in currentLevel.gameObjects
                 if gameObject instanceof UnitTest
                     gameObject.runTest()
             
     unclicked: () ->
-            
-    mouseIsOver: () ->
-        getMouse().dist(@loc) < @radius
         
 class Draggable
     constructor: () ->
@@ -37,22 +39,25 @@ class Draggable
         @rotating = false
         
         @indeces = new PVector(-1, random(0, 9))
-        @loc = computeLocationFromIndeces(@indeces)
+        
+        @circle = new Circle(computeLocationFromIndeces(@indeces), gridSquareWidth / 2 - 2 * border)
+        @rotationCircle = new Circle(computeLocationFromIndeces(@indeces), gridSquareWidth / 2 - 2 * border + 20)
         
         @rotation = 0
         @offset = new PVector()
     
     run: () ->
         if @dragging
-            @loc.set(PVector.add(getMouse(), @offset))
+            @circle.loc.set(PVector.add(getMouse(), @offset))
+            @rotationCircle.loc.set(PVector.add(getMouse(), @offset))
         if @rotating
             @rotation = @mouseAngle() + @rotationOffset
             
     clicked: () ->
-        if @mouseIsOver()
+        if @circle.mouseIsOver()
             @dragging = true
-            @offset.set(PVector.sub(@loc, getMouse()))
-        if @mouseIsOverRotation()
+            @offset.set(PVector.sub(@circle.loc, getMouse()))
+        else if @rotationCircle.mouseIsOver()
             @rotating = true
             @rotationOffset = @mouseAngle() - @rotation
             
@@ -61,45 +66,36 @@ class Draggable
         @rotating = false
         
         #Quantize location based on grid
-        @indeces = computeIndecesFromLocation(@loc)
-        @loc = computeLocationFromIndeces(@indeces)
+        @indeces = computeIndecesFromLocation(@circle.loc)
+        @circle.loc = computeLocationFromIndeces(@indeces)
         
         #Quantize rotation to one of the four cardinal directions
         @rotation = Math.round(@rotation / HALF_PI) * HALF_PI
         
     mouseAngle: () ->
-        heading(PVector.sub(getMouse(), @loc))
+        heading(PVector.sub(getMouse(), @circle.loc))
         
-class DraggableCircle extends Draggable
-    constructor: () ->
-        super()
-        @radius = gridSquareWidth / 2 - 2 * border
-    
     show: () ->
         #first draw the circle
-        translateByLocation(@loc)
+        translateByLocation(@circle.loc)
         rotate(@rotation)
         stroke(100)
-        ellipseByRadius(@radius)
+        ellipseByRadius(@circle.radius)
         
         #Now let's draw the arrow
         strokeWeight(10)
         stroke(0, 200, 0)
-        line(0, 0, 0, -@radius)
-        translate(0, -@radius)
+        line(0, 0, 0, -@circle.radius)
+        translate(0, -@circle.radius)
         
         dx = 7
         dy = 5
         triangle(0, -5, dx, dy, -dx, dy)
         
-    mouseIsOver: () ->
-        getMouse().dist(@loc) < @radius
+    getLoc: () ->
+        return @circle.loc
         
-    mouseIsOverRotation: () ->
-        distance = getMouse().dist(@loc)
-        distance > @radius and distance < @radius + 20
-        
-class LogicBox extends DraggableCircle        
+class LogicBox extends Draggable     
     processString: (s) ->
         s
         
@@ -177,7 +173,7 @@ class UnitTest
             @runTest()
             
     runTest: () ->
-        currentLevel.gameObjects.push(new StringInProgress(@input, currentLevel.startBox.loc, this))
+        currentLevel.gameObjects.push(new StringInProgress(@input, currentLevel.startBox.getLoc(), this))
         
     unclicked: () ->
         
@@ -199,7 +195,7 @@ class Level extends StartBox
     findLogicBoxByLocation: (location) ->
         for gameObject in @gameObjects
             if gameObject instanceof LogicBox
-                if gameObject.loc.dist(location) == 0
+                if gameObject.getLoc().dist(location) == 0
                     return gameObject
                 
         return null
