@@ -20,7 +20,9 @@ class RunButton
         
     clicked: () ->
         if @mouseIsOver()
-            println("Running all tests!")         
+            for gameObject in currentLevel.gameObjects
+                if gameObject instanceof UnitTest
+                    gameObject.runTest()
             
     unclicked: () ->
             
@@ -43,6 +45,14 @@ class Draggable
             @loc.set(PVector.add(getMouse(), @offset))
         if @rotating
             @rotation = @mouseAngle() + @rotationOffset
+            
+    clicked: () ->
+        if @mouseIsOver()
+            @dragging = true
+            @offset.set(PVector.sub(@loc, getMouse()))
+        if @mouseIsOverRotation()
+            @rotating = true
+            @rotationOffset = @mouseAngle() - @rotation
             
     unclicked: () ->
         @dragging = false
@@ -80,14 +90,6 @@ class DraggableCircle extends Draggable
         dy = 5
         triangle(0, -5, dx, dy, -dx, dy)
         
-    clicked: () ->
-        if @mouseIsOver()
-            @dragging = true
-            @offset.set(PVector.sub(@loc, getMouse()))
-        if @mouseIsOverRotation()
-            @rotating = true
-            @rotationOffset = @mouseAngle() - @rotation
-            
     mouseIsOver: () ->
         getMouse().dist(@loc) < @radius
         
@@ -119,6 +121,11 @@ class StartBox extends LogicBox
     show: () ->
         fill(0, 0, 0)
         super
+        
+    run: () ->
+        super
+        println("mouseAngle: " + @mouseAngle())
+        println("rotation  : " + @rotation)
     
 class StringInProgress
     constructor: (@string, @loc) ->
@@ -145,8 +152,7 @@ class StringInProgress
     unclicked: () ->
     
 class UnitTest
-    constructor: (@input, @output) ->
-        @loc = new PVector(1200, 100)
+    constructor: (@input, @output, @loc) ->
         @radius = 50
         
     run: () ->
@@ -163,7 +169,10 @@ class UnitTest
         
     clicked: () ->
         if @mouseIsOver()
-            currentLevel.gameObjects.push(new StringInProgress(@input, currentLevel.startBox.loc))
+            @runTest()
+            
+    runTest: () ->
+        currentLevel.gameObjects.push(new StringInProgress(@input, currentLevel.startBox.loc))
         
     unclicked: () ->
         
@@ -205,7 +214,8 @@ setup = () ->
     currentLevel.gameObjects.push(new CopyBox())
     currentLevel.gameObjects.push(new DeleteBox())
 
-    currentLevel.gameObjects.push(new UnitTest("test", "estt"))
+    currentLevel.gameObjects.push(new UnitTest("abc", "bca", new PVector(1200, 100)))
+    currentLevel.gameObjects.push(new UnitTest("test", "estt", new PVector(1300, 100)))
     currentLevel.gameObjects.push(new RunButton())
         
 draw = () ->
@@ -279,7 +289,7 @@ getMouse = () ->
     
 heading = (vector) ->
     ding = Math.atan(vector.y / vector.x)
-    if vector.x < 0 then ding else ding + 180
+    if vector.x < 0 then ding - HALF_PI else ding + HALF_PI
         
 makeVectorFromHeading = (heading) ->
     return new PVector(cos(heading), sin(heading))
