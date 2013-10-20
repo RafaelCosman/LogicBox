@@ -63,7 +63,9 @@ class Draggable
         @loc = computeLocationFromIndeces(@indeces)
         
         #Quantize rotation to one of the four cardinal directions
-        @rotation = Math.round(@rotation / PI/2) * PI/2
+        println(@rotation)
+        @rotation = Math.round(@rotation / HALF_PI) * HALF_PI
+        println(@rotation)
         
     mouseAngle: () ->
         heading(PVector.sub(getMouse(), @loc))
@@ -121,11 +123,6 @@ class StartBox extends LogicBox
     show: () ->
         fill(0, 0, 0)
         super
-        
-    run: () ->
-        super
-        println("mouseAngle: " + @mouseAngle())
-        println("rotation  : " + @rotation)
     
 class StringInProgress
     constructor: (@string, @loc) ->
