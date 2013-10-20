@@ -223,6 +223,8 @@ boardOffset = new PVector(gridSquareWidth * 1.5 + border, gridSquareWidth * .5 +
 currentLevel = null
 
 setup = () ->
+    
+    
     textFont(createFont("FFScala", 32))
     
     rectMode(CENTER)
@@ -241,6 +243,8 @@ setup = () ->
 draw = () ->
     background(200)
 
+    background(loadImage("http:\/\/i.imgur.com\/TT16s.jpg"), 0, 0)
+    
     fill(255)
     strokeWeight(2)
     stroke(0)
@@ -261,8 +265,8 @@ draw = () ->
 #Draws the grid for the user to code on. This grid should be drawn behind all other game objects.
 drawGrid = () ->
     fill(255)
-    strokeWeight(2)
-    stroke(0, 10, 20)
+    strokeWeight(0)
+    stroke(255)
     for x in [0..currentLevel.gridWidth]
         for y in [0..currentLevel.gridWidth]
             rectByLocationAndDimensions(computeLocationFromIndeces(new PVector(x, y)), new PVector(gridSquareWidth, gridSquareWidth))
