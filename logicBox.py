@@ -8,7 +8,21 @@ class Circle
     constructor: (@loc, @radius) ->
         
     mouseIsOver: () ->
-        getMouse().dist(@loc) < @radius
+        getMouse().dist(@getLoc()) < @getRadius()
+        
+    getLoc: () ->
+        @loc
+        
+    getRadius: () ->
+        @radius
+        
+    show: () ->
+        if @mouseIsOver()
+            radius = @getRadius() * 1.1
+        else
+            radius = @getRadius()
+            
+        ellipseByRadius(radius)
         
 class RunButton
     constructor: () ->
@@ -17,10 +31,8 @@ class RunButton
     run: () ->
         
     show: () ->
-        translateByLocation(@circle.loc)
-        
         stroke(0)
-        ellipseByRadius(@circle.radius)
+        @circle.show()
         
         fill(100)
         text("Run all tests", 0, 0)
@@ -32,6 +44,9 @@ class RunButton
                     gameObject.runTest()
             
     unclicked: () ->
+        
+    getLoc: () ->
+        @circle.getLoc()
         
 class Draggable
     constructor: () ->
@@ -56,7 +71,7 @@ class Draggable
     clicked: () ->
         if @circle.mouseIsOver()
             @dragging = true
-            @offset.set(PVector.sub(@circle.loc, getMouse()))
+            @offset.set(PVector.sub(@getLoc(), getMouse()))
         else if @rotationCircle.mouseIsOver()
             @rotating = true
             @rotationOffset = @mouseAngle() - @rotation
@@ -66,21 +81,20 @@ class Draggable
         @rotating = false
         
         #Quantize location based on grid
-        @indeces = computeIndecesFromLocation(@circle.loc)
+        @indeces = computeIndecesFromLocation(@getLoc())
         @circle.loc = computeLocationFromIndeces(@indeces)
         
         #Quantize rotation to one of the four cardinal directions
         @rotation = Math.round(@rotation / HALF_PI) * HALF_PI
         
     mouseAngle: () ->
-        heading(PVector.sub(getMouse(), @circle.loc))
+        heading(PVector.sub(getMouse(), @getLoc()))
         
     show: () ->
         #first draw the circle
-        translateByLocation(@circle.loc)
         rotate(@rotation)
         stroke(100)
-        ellipseByRadius(@circle.radius)
+        @circle.show()
         
         #Now let's draw the arrow
         strokeWeight(10)
@@ -93,7 +107,7 @@ class Draggable
         triangle(0, -5, dx, dy, -dx, dy)
         
     getLoc: () ->
-        return @circle.loc
+        return @circle.getLoc()
         
 class LogicBox extends Draggable     
     processString: (s) ->
@@ -142,26 +156,26 @@ class StringInProgress
             @string = currentLogicBox.processString(@string)
         
     show: () ->
-        translateByLocation(@loc)
         fill(200)
         text(@string, 0, 0)
         
     clicked: () ->
         
     unclicked: () ->
-    
+        
+    getLoc: () ->
+        @loc
+        
 class UnitTest
-    constructor: (@input, @output, @loc) ->
-        @radius = 50
-        @fillColor = color(100)
+    constructor: (@input, @output, loc) ->
+        @circle = new Circle(loc, 50)
         
     run: () ->
         
     show: () ->
-        translateByLocation(@loc)
         fill(@fillColor)
         stroke(0)
-        ellipseByRadius(@radius)
+        @circle.show()
         
         stroke(200)
         fill(200)
@@ -169,21 +183,21 @@ class UnitTest
         text(@output, 0, 25)
         
     clicked: () ->
-        if @mouseIsOver()
+        if @circle.mouseIsOver()
             @runTest()
             
     runTest: () ->
         currentLevel.gameObjects.push(new StringInProgress(@input, currentLevel.startBox.getLoc(), this))
         
     unclicked: () ->
-        
-    mouseIsOver: () ->
-        getMouse().dist(@loc) < @radius
-        
+                
     passed: () ->
         @fillColor = color(255)
     failed: () ->
         @fillColor = color(255, 0 , 0)
+        
+    getLoc: () ->
+        return @circle.getLoc()
     
 class Level extends StartBox
     constructor: () ->
@@ -240,6 +254,7 @@ draw = () ->
         gameObject.run()
         
         pushMatrix()
+        translateByLocation(gameObject.getLoc())
         gameObject.show()
         popMatrix()
 
