@@ -5,7 +5,7 @@ This is the Logic Box game by Rafael Cosman
 #Classes
 #-----------------
 class Circle
-    constructor: (@loc, @radius) ->
+    constructor: (@loc, @radius, @fillColor) ->
         
     mouseIsOver: () ->
         getMouse().dist(@getLoc()) < @getRadius()
@@ -21,12 +21,22 @@ class Circle
             radius = @getRadius() * 1.1
         else
             radius = @getRadius()
-            
+        
+        #first make a drop-shadow
+        pushMatrix()
+        translate(1, 1)
+        fill(0, 0, 0, 50)
+        strokeWeight(0)
         ellipseByRadius(radius)
+        popMatrix()
+        
+        fill(@fillColor)
+        ellipseByRadius(radius)
+        
         
 class RunButton
     constructor: () ->
-        @circle = new Circle(new PVector(1500, 100), 100)
+        @circle = new Circle(new PVector(1500, 100), 100, color(0, 100, 0))
         
     run: () ->
         
@@ -114,25 +124,25 @@ class LogicBox extends Draggable
         s
         
 class CopyBox extends LogicBox
-    show: () ->
-        fill(0, 0, 255)
+    constructor: () ->
         super
+        @circle.fillColor = color(0, 0, 255)
         
     processString: (input) ->
         input += input[0]
 
 class DeleteBox extends LogicBox
-    show: () ->
-        fill(255, 0, 0)
+    constructor: () ->
         super
+        @circle.fillColor = color(255, 0, 0)
         
     processString: (input) ->
         input.substring(1)
         
 class StartBox extends LogicBox
-    show: () ->
-        fill(0, 0, 0)
+    constructor: () ->
         super
+        @circle.fillColor = color(0)
     
 class StringInProgress
     constructor: (@string, @loc, @unitTest) ->
@@ -168,13 +178,11 @@ class StringInProgress
         
 class UnitTest
     constructor: (@input, @output, loc) ->
-        @circle = new Circle(loc, 50)
+        @circle = new Circle(loc, 50, color(100))
         
     run: () ->
         
     show: () ->
-        fill(@fillColor)
-        stroke(0)
         @circle.show()
         
         stroke(200)
@@ -192,9 +200,9 @@ class UnitTest
     unclicked: () ->
                 
     passed: () ->
-        @fillColor = color(255)
+        @circle.fillColor = color(255)
     failed: () ->
-        @fillColor = color(255, 0 , 0)
+        @circle.fillColor = color(255, 0 , 0)
         
     getLoc: () ->
         return @circle.getLoc()
@@ -202,7 +210,7 @@ class UnitTest
 class Level extends StartBox
     constructor: () ->
         @gameObjects = []
-        @gridWidth = 9
+        @gridWidth = 6
         @startBox = new StartBox()
         @gameObjects.push(@startBox)
         
@@ -223,8 +231,6 @@ boardOffset = new PVector(gridSquareWidth * 1.5 + border, gridSquareWidth * .5 +
 currentLevel = null
 
 setup = () ->
-    
-    
     textFont(createFont("FFScala", 32))
     
     rectMode(CENTER)
@@ -243,7 +249,7 @@ setup = () ->
 draw = () ->
     background(200)
 
-    background(loadImage("http:\/\/i.imgur.com\/TT16s.jpg"), 0, 0)
+    #background(loadImage("http:\/\/i.imgur.com\/TT16s.jpg"), 0, 0)
     
     fill(255)
     strokeWeight(2)
@@ -267,8 +273,8 @@ drawGrid = () ->
     fill(255)
     strokeWeight(0)
     stroke(255)
-    for x in [0..currentLevel.gridWidth]
-        for y in [0..currentLevel.gridWidth]
+    for x in [0..currentLevel.gridWidth - 1]
+        for y in [0..currentLevel.gridWidth - 1]
             rectByLocationAndDimensions(computeLocationFromIndeces(new PVector(x, y)), new PVector(gridSquareWidth, gridSquareWidth))
 
 #Helper functions
